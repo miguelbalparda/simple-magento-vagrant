@@ -115,8 +115,8 @@ if [ ! -f "/vagrant/httpdocs/app/etc/local.xml" ]; then
   --skip_url_validation yes \
   --admin_lastname Owner --admin_firstname Store --admin_email "admin@example.com" \
   --admin_username admin --admin_password password123123
-  /usr/bin/php -f shell/indexer.php reindexall
-fi
+  /usr/local/php7/bin/php -f shell/indexer.php reindexall
+  fi
 
 # Install n98-magerun
 # --------------------
