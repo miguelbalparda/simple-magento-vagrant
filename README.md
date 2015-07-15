@@ -33,4 +33,7 @@ Admittedly, Puppet and Chef are excellent solutions for predictable and document
 **Original VM**
 [Simple Magento Vagrant](https://github.com/r-baker/simple-magento-vagrant)
 
+**Known issues**
+
+If you see the Create configuration file screen when accesint 127.0.0.1/index.php restart apache and it should go away.
 
