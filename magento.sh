@@ -99,7 +99,10 @@ if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
   tar -zxvf magento-${MAGE_VERSION}.tar.gz
   mv magento/* magento/.htaccess .
   chmod -R o+w media var
-    chmod o+w app/etc
+  chmod o+w app/etc
+  sudo chown www-data:www-data -R *
+  sudo find . -type d -exec chmod 755 {} \;
+  sudo find . -type f -exec chmod 644 {} \;
   # Clean up downloaded file and extracted dir
   rm -rf magento*
 fi

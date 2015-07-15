@@ -39,6 +39,7 @@ cp /usr/local/php7/php7.load /etc/apache2/mods-available/
 rm -rf /var/www/html
 mkdir /vagrant/httpdocs
 ln -fs /vagrant/httpdocs /var/www/html
+sudo chown www-data:www-data -R /var/www/html
 
 # Set handlerxx
 # --------------------
@@ -100,8 +101,18 @@ if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
   cd /var/www/html
   wget http://wordpress.org/latest.zip
   unzip latest.zip
+  HTACCESS=$(echo 
+  "<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.php [L]
+  </IfModule>")
+  echo "$HTACCESS" >> /var/www/html/wordpress/.htaccess
   sudo chown www-data:www-data -R *
   sudo find . -type d -exec chmod 755 {} \;
   sudo find . -type f -exec chmod 644 {} \;
+
 fi
 sudo service apache2 restart
