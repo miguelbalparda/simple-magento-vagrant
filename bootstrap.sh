@@ -9,13 +9,29 @@ DATA_VERSION="1.9.0.0"
 apt-get update
 
 # Install Apache & PHP
+# http://php7.zend.com/install-ubuntu.php
 # --------------------
 apt-get install -y apache2
-apt-get install -y php5
-apt-get install -y libapache2-mod-php5
-apt-get install -y php5-mysqlnd php5-curl php5-xdebug php5-gd php5-intl php-pear php5-imap php5-mcrypt php5-ming php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl php-soap
 
-php5enmod mcrypt
+wget http://repos.zend.com/zend-server/early-access/php7/php-7.0-beta1-DEB-x86_64.tar.gz
+tar xzPf php-7.0-beta1-DEB-x86_64.tar.gz
+apt-get update && apt-get install -y \
+libcurl4-openssl-dev \
+libmcrypt-dev \
+libxml2-dev \
+libjpeg-dev \
+libfreetype6-dev \
+libmysqlclient-dev \
+libt1-dev \
+libgmp-dev \
+libpspell-dev \
+libicu-dev \
+librecode-dev \
+libxpm4
+apt-get install libjpeg62
+
+cp /usr/local/php7/libphp7.so /usr/lib/apache2/modules/
+cp /usr/local/php7/php7.load /etc/apache2/mods-available/
 
 # Delete default apache web dir and symlink mounted vagrant dir from host machine
 # --------------------
@@ -23,6 +39,14 @@ rm -rf /var/www/html
 mkdir /vagrant/httpdocs
 ln -fs /vagrant/httpdocs /var/www/html
 
+# Set handlerxx
+# --------------------
+HANDLER=$(echo "<FilesMatch \.php$>
+SetHandler application/x-httpd-php
+</FilesMatch>")
+echo "$HANDLER" >> /etc/apache2/apache2.conf
+INFO=$(echo "<?php phpinfo() ;?>")
+echo "$INFO" >> /var/www/html/info.php
 # Replace contents of default Apache vhost
 # --------------------
 VHOST=$(cat <<EOF
@@ -47,8 +71,9 @@ EOF
 
 echo "$VHOST" > /etc/apache2/sites-enabled/000-default.conf
 
-a2enmod rewrite
-service apache2 restart
+a2dismod mpm_event
+a2enmod mpm_prefork
+a2enmod php7
 
 # Mysql
 # --------------------
@@ -79,30 +104,13 @@ if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
 fi
 
 
-# Sample Data
-if [[ $SAMPLE_DATA == "true" ]]; then
-  cd /vagrant
-
-  if [[ ! -f "/vagrant/magento-sample-data-${DATA_VERSION}.tar.gz" ]]; then
-    # Only download sample data if we need to
-    wget http://www.magentocommerce.com/downloads/assets/${DATA_VERSION}/magento-sample-data-${DATA_VERSION}.tar.gz
-  fi
-
-  tar -zxvf magento-sample-data-${DATA_VERSION}.tar.gz
-  cp -R magento-sample-data-${DATA_VERSION}/media/* httpdocs/media/
-  cp -R magento-sample-data-${DATA_VERSION}/skin/*  httpdocs/skin/
-  mysql -u root magentodb < magento-sample-data-${DATA_VERSION}/magento_sample_data_for_${DATA_VERSION}.sql
-  rm -rf magento-sample-data-${DATA_VERSION}
-fi
-
-
 # Run installer
 if [ ! -f "/vagrant/httpdocs/app/etc/local.xml" ]; then
   cd /vagrant/httpdocs
   sudo /usr/bin/php -f install.php -- --license_agreement_accepted yes \
   --locale en_US --timezone "America/Los_Angeles" --default_currency USD \
   --db_host localhost --db_name magentodb --db_user magentouser --db_pass password \
-  --url "http://127.0.0.1:8080/" --use_rewrites yes \
+  --url "http://127.0.0.1:8080/" --use_rewrites yes --session_save db \
   --use_secure no --secure_base_url "http://127.0.0.1:8080/" --use_secure_admin no \
   --skip_url_validation yes \
   --admin_lastname Owner --admin_firstname Store --admin_email "admin@example.com" \
@@ -116,3 +124,4 @@ cd /vagrant/httpdocs
 wget https://raw.github.com/netz98/n98-magerun/master/n98-magerun.phar
 chmod +x ./n98-magerun.phar
 sudo mv ./n98-magerun.phar /usr/local/bin/
+sudo service apache2 restart
