@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+SAMPLE_DATA=$1
+MAGE_VERSION="1.9.1.0"
+DATA_VERSION="1.9.0.0"
+
 # Update Apt
 # --------------------
 apt-get update
@@ -50,16 +54,18 @@ VHOST=$(cat <<EOF
 NameVirtualHost *:8080
 Listen 8080
 <VirtualHost *:80>
-  DocumentRoot "/var/www/html"
+  DirectoryIndex index.php
+  DocumentRoot "/var/www/html/wordpress"
   ServerName localhost
-  <Directory "/var/www/html">
+  <Directory "/var/www/html/wordpress">
     AllowOverride All
   </Directory>
 </VirtualHost>
 <VirtualHost *:8080>
-  DocumentRoot "/var/www/html"
+  DirectoryIndex index.php
+  DocumentRoot "/var/www/html/wordpress"
   ServerName localhost
-  <Directory "/var/www/html">
+  <Directory "/var/www/html/wordpress">
     AllowOverride All
   </Directory>
 </VirtualHost>
@@ -90,9 +96,11 @@ mysql -u root -e "FLUSH PRIVILEGES"
 
 # Download and extract
 if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
-  cd /vagrant/httpdocs
+  cd /var/www/html
   wget http://wordpress.org/latest.zip
   unzip latest.zip
-  cd wordpress
-  mv * ../
+  sudo chown www-data:www-data -R *
+  sudo find . -type d -exec chmod 755 {} \;
+  sudo find . -type f -exec chmod 644 {} \;
 fi
+sudo service apache2 restart
