@@ -107,7 +107,7 @@ fi
 # Run installer
 if [ ! -f "/vagrant/httpdocs/app/etc/local.xml" ]; then
   cd /vagrant/httpdocs
-  sudo /usr/bin/php -f install.php -- --license_agreement_accepted yes \
+  sudo /usr/local/php7/bin/php -f install.php -- --license_agreement_accepted yes \
   --locale en_US --timezone "America/Los_Angeles" --default_currency USD \
   --db_host localhost --db_name magentodb --db_user magentouser --db_pass password \
   --url "http://127.0.0.1:8080/" --use_rewrites yes --session_save db \
