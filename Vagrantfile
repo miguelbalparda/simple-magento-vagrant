@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", "1024"]
-    vb.name = "simple-magento-vagrant"
+    vb.name = "simple-php7-vagrant"
   end
 
 end
