@@ -76,6 +76,7 @@ echo "$VHOST" > /etc/apache2/sites-enabled/000-default.conf
 
 a2dismod mpm_event
 a2enmod mpm_prefork
+a2enmod rewrite
 a2enmod php7
 
 # Mysql
