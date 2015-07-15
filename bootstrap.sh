@@ -47,8 +47,6 @@ HANDLER=$(echo "<FilesMatch \.php$>
 SetHandler application/x-httpd-php
 </FilesMatch>")
 echo "$HANDLER" >> /etc/apache2/apache2.conf
-INFO=$(echo "<?php phpinfo() ;?>")
-echo "$INFO" >> /var/www/html/info.php
 # Replace contents of default Apache vhost
 # --------------------
 VHOST=$(cat <<EOF
@@ -108,6 +106,8 @@ if [[ ! -f "/vagrant/httpdocs/index.php" ]]; then
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.php [L]
   </IfModule>' >> /var/www/html/wordpress/.htaccess
+  INFO=$(echo "<?php phpinfo() ;?>")
+  echo "$INFO" >> /var/www/html/wordpress/info.php
   sudo chown www-data:www-data -R *
   sudo find . -type d -exec chmod 755 {} \;
   sudo find . -type f -exec chmod 644 {} \;
