@@ -35,5 +35,5 @@ Admittedly, Puppet and Chef are excellent solutions for predictable and document
 
 **Known issues**
 
-If you see the Create configuration file screen when accesint 127.0.0.1/index.php restart apache and it should go away.
+If you see the Create configuration file screen when accesing http://127.0.0.1:8080/index.php restart apache and it should go away.
 
